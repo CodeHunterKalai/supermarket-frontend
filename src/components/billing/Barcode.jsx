@@ -5,15 +5,15 @@ import { Html5Qrcode } from "html5-qrcode";
 
 const Barcode = ({ onScan, onError }) => {
   const scannerRef = useRef(null);
-  const lastScanRef = useRef("");
+  const scanLockRef = useRef(false);
 
   useEffect(() => {
-    let active = true;
+    let mounted = true;
 
-    const startScanner = async () => {
+    const start = async () => {
       try {
         const devices = await Html5Qrcode.getCameras();
-        if (!devices.length) throw new Error("No camera found");
+        if (!devices.length) throw new Error("No camera");
 
         const cameraId =
           devices.find(d => d.label.toLowerCase().includes("back"))?.id ||
@@ -26,30 +26,26 @@ const Barcode = ({ onScan, onError }) => {
           cameraId,
           { fps: 10, qrbox: { width: 250, height: 150 } },
           (text) => {
-            if (!active) return;
+            if (!mounted) return;
+            if (scanLockRef.current) return;
 
-            // prevent duplicate scan
-            if (text === lastScanRef.current) return;
-
-            lastScanRef.current = text;
+            scanLockRef.current = true;
             onScan(text);
 
-            // unlock after delay
             setTimeout(() => {
-              lastScanRef.current = "";
-            }, 80);
+              scanLockRef.current = false;
+            }, 700);
           }
         );
-      } catch (err) {
-        console.error(err);
-        onError("Camera start failed");
+      } catch (e) {
+        onError("Camera failed");
       }
     };
 
-    startScanner();
+    start();
 
     return () => {
-      active = false;
+      mounted = false;
       scannerRef.current?.stop().catch(() => {});
       scannerRef.current = null;
     };
@@ -58,13 +54,7 @@ const Barcode = ({ onScan, onError }) => {
   return (
     <div
       id="barcode-reader"
-      style={{
-        width: "100%",
-        height: "320px",
-        border: "2px solid #198754",
-        borderRadius: "8px",
-        background: "#f8f9fa",
-      }}
+      style={{ height: 320, border: "2px solid green" }}
     />
   );
 };

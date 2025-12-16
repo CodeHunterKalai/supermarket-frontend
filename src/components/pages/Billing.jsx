@@ -27,8 +27,6 @@ const Billing = () => {
 
   const handleCameraScan = async (barcode) => {
     console.log("[v0] Camera scanned barcode:", barcode);
-    setBarcodeInput(barcode);
-    // Automatically process the scanned barcode
     await processBarcode(barcode);
   };
 
@@ -45,29 +43,33 @@ const Billing = () => {
         return;
       }
 
-      const existingItem = billItems.find(
-        (item) => item.barcode === product.barcode
-      );
+      setBillItems((prevItems) => {
+        const existingItem = prevItems.find(
+          (item) => item.barcode === product.barcode
+        );
 
-      if (existingItem) {
-        if (existingItem.quantity >= product.quantity) {
-          showAlert(
-            "warning",
-            `Cannot add more. Only ${product.quantity} units available`
-          );
-        } else {
-          setBillItems(
-            billItems.map((item) =>
-              item.barcode === product.barcode
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            )
-          );
+        if (existingItem) {
+          if (existingItem.quantity >= product.quantity) {
+            showAlert(
+              "warning",
+              `Cannot add more. Only ${product.quantity} units available`
+            );
+            return prevItems;
+          }
+
           showAlert("success", `Added 1 more ${product.name}`);
+
+          return prevItems.map((item) =>
+            item.barcode === product.barcode
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
         }
-      } else {
-        setBillItems([
-          ...billItems,
+
+        showAlert("success", `Added ${product.name} to bill`);
+
+        return [
+          ...prevItems,
           {
             barcode: product.barcode,
             productId: product.id,
@@ -76,9 +78,8 @@ const Billing = () => {
             quantity: 1,
             availableStock: product.quantity,
           },
-        ]);
-        showAlert("success", `Added ${product.name} to bill`);
-      }
+        ];
+      });
 
       // setBarcodeInput("");
     } catch (error) {
@@ -94,6 +95,7 @@ const Billing = () => {
 
   const handleQuantityChange = (barcode, newQuantity) => {
     const item = billItems.find((i) => i.barcode === barcode);
+    if (!item) return;
 
     if (newQuantity > item.availableStock) {
       showAlert("warning", `Only ${item.availableStock} units available`);
@@ -112,7 +114,7 @@ const Billing = () => {
   };
 
   console.log(billItems);
-  
+
   const handleRemoveItem = (barcode) => {
     setBillItems(billItems.filter((item) => item.barcode !== barcode));
   };
