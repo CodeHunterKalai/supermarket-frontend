@@ -80,7 +80,7 @@ const Billing = () => {
         showAlert("success", `Added ${product.name} to bill`);
       }
 
-      setBarcodeInput("");
+      // setBarcodeInput("");
     } catch (error) {
       showAlert("danger", "Product not found with barcode: " + barcode);
       setBarcodeInput("");
