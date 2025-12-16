@@ -37,7 +37,7 @@ const Barcode = ({ onScan, onError }) => {
             // unlock after delay
             setTimeout(() => {
               lastScanRef.current = "";
-            }, 800);
+            }, 80);
           }
         );
       } catch (err) {
