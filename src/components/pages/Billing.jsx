@@ -111,6 +111,8 @@ const Billing = () => {
     }
   };
 
+  console.log(billItems);
+  
   const handleRemoveItem = (barcode) => {
     setBillItems(billItems.filter((item) => item.barcode !== barcode));
   };

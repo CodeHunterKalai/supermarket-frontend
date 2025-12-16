@@ -124,7 +124,7 @@ const Barcode = ({ onScan, onError }) => {
         if (html5QrCodeRef.current.isScanning) {
           await html5QrCodeRef.current.stop();
         }
-        html5QrCodeRef.current.clear();
+        // html5QrCodeRef.current.clear();
         html5QrCodeRef.current = null;
       } catch (err) {
         console.error("Error stopping scanner:", err);
