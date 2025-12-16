@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { productAPI } from "../../services/api"
+import Barcode from "../billing/Barcode"
 
 const ProductModal = ({ show, onHide, product, onSuccess, onError }) => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,8 @@ const ProductModal = ({ show, onHide, product, onSuccess, onError }) => {
   })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+
+  const [showScanner, setShowScanner] = useState(false)
 
   useEffect(() => {
     if (product) {
@@ -36,7 +39,18 @@ const ProductModal = ({ show, onHide, product, onSuccess, onError }) => {
       })
     }
     setErrors({})
+    setShowScanner(false)
   }, [product, show])
+
+  const handleScan = (code) => {
+    setFormData((prev) => ({ ...prev, barcode: code }))
+    setShowScanner(false)
+    // Clear barcode error if it exists
+    if (errors.barcode) {
+      setErrors((prev) => ({ ...prev, barcode: "" }))
+    }
+  }
+
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -95,6 +109,22 @@ const ProductModal = ({ show, onHide, product, onSuccess, onError }) => {
 
   return (
     <>
+      {/* Scanner Modal Overlay */}
+      {showScanner && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.8)", zIndex: 1060 }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Scan Barcode</h5>
+                <button type="button" className="btn-close" onClick={() => setShowScanner(false)}></button>
+              </div>
+              <div className="modal-body p-0">
+                <Barcode onScan={handleScan} onError={(msg) => console.error(msg)} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
         <div className="modal-dialog modal-lg">
           <div className="modal-content">
@@ -131,15 +161,27 @@ const ProductModal = ({ show, onHide, product, onSuccess, onError }) => {
 
                   <div className="col-md-12 mb-3">
                     <label className="form-label">Barcode *</label>
-                    <input
-                      type="text"
-                      name="barcode"
-                      className={`form-control barcode-input ${errors.barcode ? "is-invalid" : ""}`}
-                      value={formData.barcode}
-                      onChange={handleChange}
-                      disabled={!!product}
-                    />
-                    {errors.barcode && <div className="invalid-feedback">{errors.barcode}</div>}
+                    <div className="input-group">
+                      <input
+                        type="text"
+                        name="barcode"
+                        className={`form-control barcode-input ${errors.barcode ? "is-invalid" : ""}`}
+                        value={formData.barcode}
+                        onChange={handleChange}
+                        disabled={!!product}
+                      />
+                      {!product && (
+                        <button
+                          className="btn btn-outline-secondary"
+                          type="button"
+                          onClick={() => setShowScanner(true)}
+                          title="Scan Barcode"
+                        >
+                          <i className="bi bi-qr-code-scan"></i> Scan
+                        </button>
+                      )}
+                    </div>
+                    {errors.barcode && <div className="invalid-feedback d-block">{errors.barcode}</div>}
                     {product && <small className="text-muted">Barcode cannot be changed</small>}
                   </div>
 
