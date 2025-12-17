@@ -13,7 +13,7 @@ function App() {
         <Navbar />
         <div className="container-fluid py-4">
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/products" element={<Products />} />
             <Route path="/billing" element={<Billing />} />
