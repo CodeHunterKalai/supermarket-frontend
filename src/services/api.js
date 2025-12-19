@@ -16,8 +16,9 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 1000, // prevent infinite waiting
+  timeout: 10000, // prevent infinite waiting
 });
+
 
 /* =======================
    PRODUCT API
