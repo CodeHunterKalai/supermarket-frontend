@@ -34,7 +34,7 @@ const Dashboard = () => {
       setAlert({
         show: true,
         type: "danger",
-        message: "Failed to load dashboard data: " + (error.response?.data?.message || error.message),
+        message: " Sorry!!! Failed to load dashboard data: " + (error.response?.data?.message || error.message +"Please Refresh the page."),
       })
     } finally {
       setLoading(false)
